@@ -53,6 +53,9 @@ class SpacecraftOrientationHandler():
         известное значение среднего движения
         """
         A, B = self.get_ab(u)
+        if np.abs(B) < 1e-10:
+            print("Произодная оптимального решения обращается в бесконечность")
+            return np.zeros_like(u)
         A_B_sq = (A**2 / B**2)
         A_pr_B = (-1) * (np.cos(self.raan) * np.cos(u) - np.sin(u) * np.sin(self.raan) * np.abs(np.cos(self.inc))) / B
         return -A_pr_B / (1 + A_B_sq)

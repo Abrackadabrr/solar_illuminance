@@ -16,18 +16,21 @@ class OrbitalFrameOrientationHandler():
         self.e = e
         self.perip = w
 
+    def classic_orbital_frame_orientation(self, u):
+        q_1 = Quaternion(axis=[0, 0, 1], angle=self.raan) if self.raan < np.pi else Quaternion(axis=[0, 0, -1], angle=-self.raan)
+        q_2 = Quaternion(axis=[1, 0, 0], angle=self.inc)
+        q_3 = Quaternion(axis=[0, 0, 1], angle=u) if u < np.pi else Quaternion(axis=[0, 0, -1], angle=-u)
+        return q_1 * q_2 * q_3
+
     def orbital_frame_orientation(self, u):
         """
         Расчитывает ориентацию орбитальной системы относительно инерциальной
         """
-        q_1 = Quaternion(axis=[0, 0, 1], angle=self.raan) if self.raan < np.pi else Quaternion(axis=[0, 0, -1], angle=-self.raan)
-        q_2 = Quaternion(axis=[1, 0, 0], angle=self.inc)
-        q_3 = Quaternion(axis=[0, 0, 1], angle=u) if u < np.pi else Quaternion(axis=[0, 0, -1], angle=-u)
         # а этот кватернион нужен для того, чтобы правильно оси расставить 
         # в задаче орбитальная система немного другая, нежели стандартная
         q_4 = Quaternion(axis=[1, 1, 1], angle=2*np.pi/3)
 
-        return q_1 * q_2 * q_3 * q_4
+        return self.classic_orbital_frame_orientation(u) * q_4
 
 
 if __name__ == "__main__":
