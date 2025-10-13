@@ -14,7 +14,9 @@ class OrbitalFrameOrientationHandler():
         self.raan = raan
         self.p = p
         self.e = e
+        self.a = p / (1 - e**2)
         self.perip = w
+        self.earth_radius = 6371
 
     def classic_orbital_frame_orientation(self, u):
         q_1 = Quaternion(axis=[0, 0, 1], angle=self.raan) if self.raan < np.pi else Quaternion(axis=[0, 0, -1], angle=-self.raan)
@@ -31,6 +33,32 @@ class OrbitalFrameOrientationHandler():
         q_4 = Quaternion(axis=[1, 1, 1], angle=2*np.pi/3)
 
         return self.classic_orbital_frame_orientation(u) * q_4
+
+    def is_inside_the_dark(self, u):
+        """
+        Определяет, находится ли аппарат в тени
+        """
+        def get_result(r):
+            return (r[2]**2 + r[1]**2 < self.earth_radius**2) and (r[0] < 0)
+        
+        if type(u) == np.ndarray:
+            return self.a * np.array([get_result( self.classic_orbital_frame_orientation(us).rotate(np.array([self.a, 0, 0])) ) \
+                      for us in u])
+
+        return get_result(self.classic_orbital_frame_orientation(u).rotate(np.array([self.a, 0, 0])))
+
+    def is_outside_the_dark(self, u):
+        """
+        Определяет, находится ли аппарат вне тени
+        """
+        def get_result(r):
+            return (r[2]**2 + r[1]**2 >= self.earth_radius**2) or (r[0] >= 0)
+        
+        if type(u) == np.ndarray:
+            return np.array([get_result( self.classic_orbital_frame_orientation(us).rotate([self.a, 0, 0]) ) \
+                      for us in u])
+
+        return get_result(self.classic_orbital_frame_orientation(u).rotate([self.a, 0, 0]))
 
 
 if __name__ == "__main__":

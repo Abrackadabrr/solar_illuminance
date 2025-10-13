@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.optimize import dual_annealing
+from scipy.optimize import minimize
 
 from orbital_handler import OrbitalFrameOrientationHandler
 from orientation_handler import SpacecraftOrientationHandler
@@ -25,7 +26,7 @@ class OptimizeSpacecraftOrientation():
             return -integral + alpha * max(0, np.max(np.abs(parametrisation_der)) - self.cnstr)**2
         
         bounds = [(-100, 100), (-100, 100), (-2, 2)]
-        a_s = np.logspace(0, 10, 10)
+        a_s = np.logspace(3, 20, 17)
         previous_res = None
         for alpha in a_s:
             result = dual_annealing(minimized_function, bounds=bounds, args=(alpha, parametrization, derivative)) 
