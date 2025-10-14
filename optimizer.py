@@ -14,6 +14,9 @@ class OptimizeSpacecraftOrientation():
 
     def optimize(self, parametrization, derivative):
         def minimized_function(w, alpha, pr, der):
+            """
+            Минимизируемая функция со штрафом
+            """
             u_s = np.linspace(0, 2 * np.pi, 1000)
             tau = u_s[1] - u_s[0]
 
@@ -22,7 +25,7 @@ class OptimizeSpacecraftOrientation():
             integral = np.sum(values)
             parametrisation_der = der(u_s, w)
 
-            #итоговое выражение с функцией штрафа
+            # итоговое выражение с функцией штрафа
             return -integral + alpha * max(0, np.max(np.abs(parametrisation_der)) - self.cnstr)**2
         
         bounds = [(-100, 100), (-100, 100), (-2, 2)]
@@ -36,3 +39,7 @@ class OptimizeSpacecraftOrientation():
                 if np.linalg.norm(result.x-previous_res.x) < self.tolerance:
                     return result
         return result
+
+
+if __name__ == '__main__':
+    pass
